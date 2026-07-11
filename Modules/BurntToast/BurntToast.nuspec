@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BurntToast</id>
+    <version>1.1.0</version>
+    <authors>Joshua (Windos) King</authors>
+    <owners>king.geek.nz</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/Windos/BurntToast/blob/main/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Windos/BurntToast</projectUrl>
+    <iconUrl>https://rawcdn.githack.com/Windos/BurntToast/3dd8dd7457552056da4bbd27880f8283e1116395/Media/BurntToast-Logo.png</iconUrl>
+    <description>Module for creating and displaying Toast Notifications on Microsoft Windows 10.</description>
+    <releaseNotes># 1.1.0
+
+* Features and Improvements
+  * Add support for Important Notifications using the Urgent switch.
+  * Add support for setting button colors.
+  * Center align notification body text when using the IncomingCall scenario.
+
+# 1.0.1
+
+* Bug Fixes
+  * OnActivated events are "sticky"
+    * See #256 by [Windos](https://github.com/Windos)
+
+# 1.0.0
+
+* Breaking Changes
+  * Custom Audio Path Removed: Support for custom audio file sources has been eliminated.
+  * AppId Customization Removed: The ability to specify a custom AppId has been removed.
+  * Shoulder Tap Notifications Removed: Support for "shoulder tap" toast types is no longer available.
+* Features and Improvements
+  * Create and update all help files.
+  * Enable "Activation" events on all supported versions of PowerShell, including Windows PowerShell.
+  * Enable "Dismissed" and "Failed" events on PowerShell 7.1+.
+  * Improve support for attribution text.
+  * Shortcut Support: Introduced capability to create Windows shortcuts with proper AppUserModelID—enables full toast branding when launching PowerShell.
+  * Event Data Improvements: Event data handling and options improved for notification actions.
+* CI and Repository
+  * Update Issue and Feature Request Templates.
+* Libraries
+  * Microsoft.Windows.SDK.NET.Ref library bumped to 10.0.22621.28.
+  * Microsoft.Toolkit.Uwp.Notifications library bumped to 7.1.3.</releaseNotes>
+    <copyright>(c) 2015 Joshua (Windos) King. All rights reserved.</copyright>
+    <tags>Notifications Utilities Windows10 Toast PSModule PSIncludes_Function PSFunction_Get-BTHeader PSFunction_Get-BTHistory PSFunction_New-BTAction PSFunction_New-BTAudio PSFunction_New-BTBinding PSFunction_New-BTButton PSFunction_New-BTColumn PSFunction_New-BTContent PSFunction_New-BTContextMenuItem PSFunction_New-BTHeader PSFunction_New-BTImage PSFunction_New-BTInput PSFunction_New-BTProgressBar PSFunction_New-BTSelectionBoxItem PSFunction_New-BTShortcut PSFunction_New-BTText PSFunction_New-BTVisual PSFunction_New-BurntToastNotification PSFunction_Remove-BTNotification PSFunction_Submit-BTNotification PSFunction_Update-BTNotification PSCommand_Get-BTHeader PSCommand_Get-BTHistory PSCommand_New-BTAction PSCommand_New-BTAudio PSCommand_New-BTBinding PSCommand_New-BTButton PSCommand_New-BTColumn PSCommand_New-BTContent PSCommand_New-BTContextMenuItem PSCommand_New-BTHeader PSCommand_New-BTImage PSCommand_New-BTInput PSCommand_New-BTProgressBar PSCommand_New-BTSelectionBoxItem PSCommand_New-BTShortcut PSCommand_New-BTText PSCommand_New-BTVisual PSCommand_New-BurntToastNotification PSCommand_Remove-BTNotification PSCommand_Submit-BTNotification PSCommand_Update-BTNotification PSCommand_Toast</tags>
+  </metadata>
+</package>

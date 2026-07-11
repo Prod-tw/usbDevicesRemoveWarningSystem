@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coreProperties xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties">
+  <dc:creator>Joshua (Windos) King</dc:creator>
+  <dc:description>Module for creating and displaying Toast Notifications on Microsoft Windows 10.</dc:description>
+  <dc:identifier>BurntToast</dc:identifier>
+  <version>1.1.0</version>
+  <keywords>Notifications Utilities Windows10 Toast PSModule PSIncludes_Function PSFunction_Get-BTHeader PSFunction_Get-BTHistory PSFunction_New-BTAction PSFunction_New-BTAudio PSFunction_New-BTBinding PSFunction_New-BTButton PSFunction_New-BTColumn PSFunction_New-BTContent PSFunction_New-BTContextMenuItem PSFunction_New-BTHeader PSFunction_New-BTImage PSFunction_New-BTInput PSFunction_New-BTProgressBar PSFunction_New-BTSelectionBoxItem PSFunction_New-BTShortcut PSFunction_New-BTText PSFunction_New-BTVisual PSFunction_New-BurntToastNotification PSFunction_Remove-BTNotification PSFunction_Submit-BTNotification PSFunction_Update-BTNotification PSCommand_Get-BTHeader PSCommand_Get-BTHistory PSCommand_New-BTAction PSCommand_New-BTAudio PSCommand_New-BTBinding PSCommand_New-BTButton PSCommand_New-BTColumn PSCommand_New-BTContent PSCommand_New-BTContextMenuItem PSCommand_New-BTHeader PSCommand_New-BTImage PSCommand_New-BTInput PSCommand_New-BTProgressBar PSCommand_New-BTSelectionBoxItem PSCommand_New-BTShortcut PSCommand_New-BTText PSCommand_New-BTVisual PSCommand_New-BurntToastNotification PSCommand_Remove-BTNotification PSCommand_Submit-BTNotification PSCommand_Update-BTNotification PSCommand_Toast</keywords>
+  <lastModifiedBy>NuGet, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35;Microsoft Windows NT 10.0.26100.0;.NET Framework 4.7.2</lastModifiedBy>
+</coreProperties>

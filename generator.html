@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USB 裝置監控 - 設定產生器</title>
+<style>
+    :root {
+        --bg: #0f1115;
+        --panel: #171a21;
+        --border: #2a2f3a;
+        --text: #e6e8eb;
+        --muted: #8b93a3;
+        --accent: #4f8cff;
+        --accent-hover: #3d78e6;
+        --warn: #ffb84f;
+        --ok: #4fd18b;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .card {
+        width: 100%;
+        max-width: 560px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 32px;
+    }
+    h1 {
+        font-size: 20px;
+        margin: 0 0 4px;
+    }
+    .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 28px;
+    }
+    label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        margin-top: 18px;
+    }
+    input[type="text"], input[type="password"], select {
+        width: 100%;
+        background: #0f1115;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        color: var(--text);
+        font-size: 14px;
+        outline: none;
+    }
+    input:focus, select:focus {
+        border-color: var(--accent);
+    }
+    .row {
+        display: flex;
+        gap: 12px;
+    }
+    .row > div { flex: 1; }
+    .toggle-pw {
+        font-size: 12px;
+        color: var(--accent);
+        cursor: pointer;
+        margin-top: 6px;
+        display: inline-block;
+        user-select: none;
+    }
+    button.primary {
+        width: 100%;
+        margin-top: 28px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 13px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    button.primary:hover { background: var(--accent-hover); }
+    button.primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+    .status {
+        margin-top: 18px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        display: none;
+    }
+    .status.show { display: block; }
+    .status.ok {
+        background: rgba(79, 209, 139, 0.1);
+        border: 1px solid rgba(79, 209, 139, 0.3);
+        color: var(--ok);
+    }
+    .status.err {
+        background: rgba(255, 90, 90, 0.1);
+        border: 1px solid rgba(255, 90, 90, 0.3);
+        color: #ff8a8a;
+    }
+    .notice {
+        margin-top: 24px;
+        padding: 14px;
+        background: rgba(255, 184, 79, 0.08);
+        border: 1px solid rgba(255, 184, 79, 0.25);
+        border-radius: 8px;
+        font-size: 12.5px;
+        color: var(--warn);
+        line-height: 1.6;
+    }
+    .steps {
+        margin-top: 20px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.9;
+    }
+    .steps b { color: var(--text); }
+    code {
+        background: #0f1115;
+        border: 1px solid var(--border);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h1>USB 裝置移除監控 — 設定產生器</h1>
+    <div class="subtitle">填入以下參數，產生已帶入設定的監控腳本供下載</div>
+
+    <label for="computerLabel">資產名稱／電腦識別碼（選填，預設用電腦名稱）</label>
+    <input type="text" id="computerLabel" placeholder="例如：Sales-PC-01">
+
+    <label for="apiUrl">監控伺服器 API 位址（apiUrl）</label>
+    <input type="text" id="apiUrl" placeholder="留空則使用預設值">
+    <div class="hint">留空將自動帶入預設伺服器位址</div>
+
+    <label for="apiKey">API 金鑰（apiKey）</label>
+    <input type="password" id="apiKey" placeholder="留空則使用預設值">
+    <span class="toggle-pw" onclick="togglePw()">顯示 / 隱藏</span>
+    <div class="hint">留空將自動帶入預設金鑰</div>
+
+    <div class="row">
+        <div>
+            <label for="alarmSound">通知音效（alarmType）</label>
+            <select id="alarmSound">
+                <option value="Default">Default（系統預設提示音）</option>
+                <option value="Alarm" selected>Alarm（警報聲）</option>
+                <option value="Alarm2">Alarm2（警報聲 2）</option>
+                <option value="Alarm3">Alarm3（警報聲 3）</option>
+                <option value="Call">Call（來電音效）</option>
+                <option value="Reminder">Reminder（提醒音效）</option>
+                <option value="SMS">SMS（訊息音效）</option>
+                <option value="Silent">Silent（靜音，僅跳通知不出聲）</option>
+            </select>
+        </div>
+        <div>
+            <label for="pollInterval">輪詢間隔（秒）</label>
+            <input type="text" id="pollInterval" value="3">
+        </div>
+    </div>
+
+    <button class="primary" onclick="generateScript()">產生並下載監控腳本</button>
+
+    <div id="status" class="status"></div>
+
+    <div class="notice">
+        ⚠️ 瀏覽器基於安全機制，無法直接在你的電腦上啟動程式。按下按鈕後會下載一支<b>已經帶入你填寫參數</b>的 <code>monitor.ps1</code>，你需要自行執行它（步驟如下），之後就不用再手動修改任何變數。
+    </div>
+
+    <div class="steps">
+        <b>下載後的執行步驟：</b><br>
+        1. 把下載的 <code>monitor.ps1</code> 放進你的專案資料夾（與 <code>Modules\BurntToast\</code> 同一層）<br>
+        2. 以系統管理員身分開啟 PowerShell<br>
+        3. 執行 <code>cd</code> 到該資料夾，再執行 <code>.\monitor.ps1</code><br>
+        4. 若被執行原則擋下，先執行一次：<code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code>
+    </div>
+</div>
+
+<script>
+// 若使用者未填寫，套用這裡的預設值（請依實際環境調整）
+const DEFAULT_API_URL = "https://localhost:8443/api/usb-event";
+const DEFAULT_API_KEY = "your-secret-api-key-here";
+
+function togglePw() {
+    const el = document.getElementById('apiKey');
+    el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function showStatus(msg, ok) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status show ' + (ok ? 'ok' : 'err');
+}
+
+function generateScript() {
+    const computerLabel = document.getElementById('computerLabel').value.trim();
+    const apiUrlInput = document.getElementById('apiUrl').value.trim();
+    const apiKeyInput = document.getElementById('apiKey').value.trim();
+    const apiUrl = apiUrlInput || DEFAULT_API_URL;
+    const apiKey = apiKeyInput || DEFAULT_API_KEY;
+    const usedDefaults = (!apiUrlInput || !apiKeyInput);
+    const alarmSound = document.getElementById('alarmSound').value;
+    const pollInterval = document.getElementById('pollInterval').value.trim() || '3';
+
+    // 通知固定用 Toast，音效依使用者選擇帶入
+    const soundParam = alarmSound === 'Silent' ? '-Silent' : `-Sound ${alarmSound}`;
+    const alarmBlock = `
+        $modulePath = Join-Path $PSScriptRoot "Modules\\BurntToast\\BurntToast.psd1"
+        if (Test-Path $modulePath) {
+            Import-Module $modulePath -Force -ErrorAction SilentlyContinue
+        }
+        if (Get-Command New-BurntToastNotification -ErrorAction SilentlyContinue) {
+            New-BurntToastNotification -Text "USB Device Removed", "$($disk.FriendlyName) (Serial: $($disk.SerialNumber))" ${soundParam}
+        } else {
+            Write-Host "[Warning] BurntToast module not found, skipping toast notification."
+        }`;
+
+    const computerLine = computerLabel
+        ? `$computerId = "${computerLabel.replace(/"/g, '')}"`
+        : `$computerId = $env:COMPUTERNAME`;
+
+    const scriptContent = `# monitor.ps1
+# Auto-generated by USB Monitor Config Generator
+# Generated at: ${new Date().toISOString()}
+
+$serverUrl = "${apiUrl.replace(/"/g, '')}"
+$apiKey = "${apiKey.replace(/"/g, '')}"
+${computerLine}
+$pollSeconds = ${parseInt(pollInterval) || 3}
+
+# Auto-unblock files in this folder (in case downloaded from browser / copied from network share)
+Get-ChildItem $PSScriptRoot -Recurse -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue
+
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
+
+function Get-USBDisks {
+    Get-Disk | Where-Object { $_.BusType -eq "USB" } | Select-Object Number, FriendlyName, SerialNumber
+}
+
+$previousDisks = Get-USBDisks
+Write-Host "USB monitoring started for [$computerId]. Detected $($previousDisks.Count) USB device(s):"
+$previousDisks | ForEach-Object { Write-Host "  - $($_.FriendlyName) ($($_.SerialNumber))" }
+
+while ($true) {
+    Start-Sleep -Seconds $pollSeconds
+    $currentDisks = Get-USBDisks
+
+    $removed = $previousDisks | Where-Object {
+        $sn = $_.SerialNumber
+        -not ($currentDisks | Where-Object { $_.SerialNumber -eq $sn })
+    }
+
+    $added = $currentDisks | Where-Object {
+        $sn = $_.SerialNumber
+        -not ($previousDisks | Where-Object { $_.SerialNumber -eq $sn })
+    }
+
+    foreach ($disk in $added) {
+        Write-Host "Device connected: $($disk.FriendlyName) - $($disk.SerialNumber)"
+        $payload = @{
+            computer  = $computerId
+            model     = $disk.FriendlyName
+            serial    = $disk.SerialNumber
+            timestamp = (Get-Date).ToString("o")
+            event     = "connected"
+        } | ConvertTo-Json
+
+        try {
+            Invoke-RestMethod -Uri $serverUrl \`
+                -Method Post -Body $payload -ContentType "application/json" \`
+                -Headers @{ "Authorization" = "Bearer $apiKey" } -TimeoutSec 5
+
+            Write-Host "Reported: $($disk.FriendlyName) - $($disk.SerialNumber)"
+        } catch {
+            Write-Host "Report failed: $_"
+            $payload | Out-File -Append (Join-Path $PSScriptRoot "failed-events.log")
+        }
+    }
+
+    foreach ($disk in $removed) {
+${alarmBlock}
+
+        $payload = @{
+            computer  = $computerId
+            model     = $disk.FriendlyName
+            serial    = $disk.SerialNumber
+            timestamp = (Get-Date).ToString("o")
+            event     = "removed"
+        } | ConvertTo-Json
+
+        try {
+            Invoke-RestMethod -Uri $serverUrl \`
+                -Method Post -Body $payload -ContentType "application/json" \`
+                -Headers @{ "Authorization" = "Bearer $apiKey" } -TimeoutSec 5
+
+            Write-Host "Reported: $($disk.FriendlyName) - $($disk.SerialNumber)"
+        } catch {
+            Write-Host "Report failed: $_"
+            $payload | Out-File -Append (Join-Path $PSScriptRoot "failed-events.log")
+        }
+    }
+
+    $previousDisks = $currentDisks
+}
+`;
+
+    const blob = new Blob([scriptContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'monitor.ps1';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    if (usedDefaults) {
+        showStatus('已產生 monitor.ps1（部分欄位使用了預設值），請依照下方步驟執行。', true);
+    } else {
+        showStatus('已產生 monitor.ps1，請依照下方步驟執行。', true);
+    }
+}
+</script>
+
+</body>
+</html>
