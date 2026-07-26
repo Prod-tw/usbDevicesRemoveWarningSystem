@@ -1,0 +1,12 @@
+{
+  "serverUrl": "https://localhost:8443/api/usb-event",
+  "apiKey": "your-secret-api-key-here",
+  "computerName": "",
+  "pollSeconds": 3,
+  "sound": "sounds/rmSsd_Female.wav",
+  "soundLoopSeconds": -1,
+  "urgent": true,
+  "skipCertificateCheck": true,
+  "identifyBy": "auto",
+  "watchIds": []
+}

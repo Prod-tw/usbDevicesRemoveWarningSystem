@@ -1,0 +1,17 @@
+﻿{"serial":"676038EE1A62","timestamp":"2026-07-27T01:12:09.1388421+08:00","model":"CT500MX5 00SSD1","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:12:26.0765657+08:00","model":"CT500MX5 00SSD1","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:12:42.3936784+08:00","model":"CT500MX5 00SSD1","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"0708370AA6972A05","timestamp":"2026-07-27T01:16:17.4708766+08:00","model":"OWC Envoy Pro mini","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"0708370AA6972A05","timestamp":"2026-07-27T01:16:24.6079874+08:00","model":"OWC Envoy Pro mini","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:22:10.5564392+08:00","model":"CT500MX5 00SSD1","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:22:26.9192241+08:00","model":"CT500MX5 00SSD1","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:23:50.7261796+08:00","model":"CT500MX5 00SSD1","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"0000000000000000","timestamp":"2026-07-27T01:24:31.5040995+08:00","model":"CT240BX5 00SSD1","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"0000000000000000","timestamp":"2026-07-27T01:24:38.6690069+08:00","model":"CT240BX5 00SSD1","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"0000000000000000","timestamp":"2026-07-27T01:24:48.9220335+08:00","model":"KINGSTON SA400S37240G","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"0000000000000000","timestamp":"2026-07-27T01:25:29.7838580+08:00","model":"KINGSTON SA400S37240G","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"921008677980","timestamp":"2026-07-27T01:25:36.9459122+08:00","model":"Realtek RTL9210CN 10G","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"921008677980","timestamp":"2026-07-27T01:25:50.2435355+08:00","model":"Realtek RTL9210CN 10G","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:31:04.7507380+08:00","model":"WDC WDS2 40G2G0A-00JH30","computer":"DESKTOP-35639G4","event":"connected"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:31:12.4463543+08:00","model":"WDC WDS2 40G2G0A-00JH30","computer":"DESKTOP-35639G4","event":"removed"}
+{"serial":"676038EE1A62","timestamp":"2026-07-27T01:31:28.7965089+08:00","model":"INTEL SS DSC2BW240H6","computer":"DESKTOP-35639G4","event":"connected"}

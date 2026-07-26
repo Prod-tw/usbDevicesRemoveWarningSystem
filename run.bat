@@ -10,6 +10,15 @@ echo   USB Device Monitor - Starting...
 echo ============================================
 echo.
 
+if not exist "%~dp0config.json" (
+    echo [Error] config.json not found in this folder.
+    echo         Open generator.html in a browser to produce one,
+    echo         then drop it next to monitor.ps1.
+    echo.
+    pause
+    exit /b 1
+)
+
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-ChildItem -Path '%~dp0' -Recurse -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue"
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0monitor.ps1"

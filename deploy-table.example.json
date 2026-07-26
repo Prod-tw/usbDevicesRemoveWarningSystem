@@ -1,0 +1,18 @@
+[
+  {
+    "deployAt": "TR-209",
+    "ssdName": "Crucial MX500 500GB",
+    "diskIds": ["A57F2BCF-20BF-4680-981E-56D539D61D48"]
+  },
+  {
+    "deployAt": "TR-210",
+    "ssdName": "Crucial MX500 500GB",
+    "diskIds": ["FFE7CF8A-7ADB-4211-919B-6CB273127007", "0E8C485B-CD80-4E92-AE3F-8BE7D3297CAA"]
+  },
+  {
+    "deployAt": "TR-211",
+    "ssdName": "Samsung T7 1TB",
+    "diskIds": ["SIG-3663A8D1"],
+    "pollSeconds": 5
+  }
+]

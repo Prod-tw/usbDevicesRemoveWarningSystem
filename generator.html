@@ -50,7 +50,7 @@
         margin-bottom: 6px;
         margin-top: 18px;
     }
-    input[type="text"], input[type="password"], select {
+    input[type="text"], input[type="password"], select, textarea {
         width: 100%;
         background: #0f1115;
         border: 1px solid var(--border);
@@ -60,8 +60,12 @@
         font-size: 14px;
         outline: none;
     }
-    input:focus, select:focus {
+    input:focus, select:focus, textarea:focus {
         border-color: var(--accent);
+    }
+    textarea {
+        resize: vertical;
+        font-family: Consolas, "Courier New", monospace;
     }
     .row {
         display: flex;
@@ -146,7 +150,7 @@
 
 <div class="card">
     <h1>USB 裝置移除監控 — 設定產生器</h1>
-    <div class="subtitle">填入以下參數，產生已帶入設定的監控腳本供下載</div>
+    <div class="subtitle">填入以下參數，產生 <code>config.json</code> 設定檔供下載</div>
 
     <label for="computerLabel">資產名稱／電腦識別碼（選填，預設用電腦名稱）</label>
     <input type="text" id="computerLabel" placeholder="例如：Sales-PC-01">
@@ -160,10 +164,14 @@
     <span class="toggle-pw" onclick="togglePw()">顯示 / 隱藏</span>
     <div class="hint">留空將自動帶入預設金鑰</div>
 
+    <label for="watchSerials">監控範圍：指定裝置序號（選填，一行一個）</label>
+    <textarea id="watchSerials" rows="3" placeholder="留空 = 監控所有 USB 磁碟"></textarea>
+    <div class="hint">留空則監控全部 USB 磁碟。要查序號，先執行一次 <code>run.bat</code>，視窗會列出目前接上的所有 USB 磁碟與序號，複製過來即可。序號大小寫不拘。</div>
+
     <div class="row">
         <div>
-            <label for="alarmSound">通知音效（alarmType）</label>
-            <select id="alarmSound">
+            <label for="alarmSound">警報音效（sound）</label>
+            <select id="alarmSound" onchange="onSoundChange()">
                 <option value="Default">Default（系統預設提示音）</option>
                 <option value="Alarm" selected>Alarm（警報聲）</option>
                 <option value="Alarm2">Alarm2（警報聲 2）</option>
@@ -172,6 +180,7 @@
                 <option value="Reminder">Reminder（提醒音效）</option>
                 <option value="SMS">SMS（訊息音效）</option>
                 <option value="Silent">Silent（靜音，僅跳通知不出聲）</option>
+                <option value="__custom__">自訂音效檔…</option>
             </select>
         </div>
         <div>
@@ -180,20 +189,45 @@
         </div>
     </div>
 
-    <button class="primary" onclick="generateScript()">產生並下載監控腳本</button>
+    <div id="customSoundBlock" style="display:none">
+        <label for="customSoundPath">自訂音效檔路徑</label>
+        <input type="text" id="customSoundPath" placeholder="sounds\alarm.wav">
+        <div class="hint">相對路徑會以 <code>monitor.ps1</code> 所在資料夾為基準。建議用 <code>.wav</code>（由 .NET 內建播放器處理，最穩定）；<code>.mp3</code> / <code>.wma</code> 改走 Windows Media Player，需系統已安裝。</div>
+
+        <label for="loopSeconds">循環播放</label>
+        <select id="loopSeconds">
+            <option value="0" selected>播放一次就停</option>
+            <option value="15">循環 15 秒後自動停止</option>
+            <option value="30">循環 30 秒後自動停止</option>
+            <option value="60">循環 60 秒後自動停止</option>
+            <option value="-1">持續循環，直到在視窗按任意鍵</option>
+        </select>
+    </div>
+
+    <label for="urgent" style="display:inline-block">
+        <input type="checkbox" id="urgent" checked style="width:auto;vertical-align:-1px">
+        標記為重要通知（可穿透「專注助理」）
+    </label>
+
+    <label for="skipCert" style="display:inline-block">
+        <input type="checkbox" id="skipCert" checked style="width:auto;vertical-align:-1px">
+        略過 TLS 憑證驗證（自簽憑證需勾選）
+    </label>
+
+    <button class="primary" onclick="generateConfig()">產生並下載 config.json</button>
 
     <div id="status" class="status"></div>
 
     <div class="notice">
-        ⚠️ 瀏覽器基於安全機制，無法直接在你的電腦上啟動程式。按下按鈕後會下載一支<b>已經帶入你填寫參數</b>的 <code>monitor.ps1</code>，你需要自行執行它（步驟如下），之後就不用再手動修改任何變數。
+        ⚠️ 瀏覽器基於安全機制，無法直接寫入你電腦上的檔案，也無法啟動程式。按下按鈕後會下載一份 <code>config.json</code>，把它放進 <code>monitor.ps1</code> 所在的資料夾即可 —— <b>腳本本身不需要重新產生</b>，日後要換伺服器或改音效，直接編輯 <code>config.json</code> 就好。
     </div>
 
     <div class="steps">
         <b>下載後的執行步驟：</b><br>
-        1. 把下載的 <code>monitor.ps1</code> 放進你的專案資料夾（與 <code>Modules\BurntToast\</code> 同一層）<br>
-        2. 以系統管理員身分開啟 PowerShell<br>
-        3. 執行 <code>cd</code> 到該資料夾，再執行 <code>.\monitor.ps1</code><br>
-        4. 若被執行原則擋下，先執行一次：<code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code>
+        1. 把下載的 <code>config.json</code> 放進專案資料夾（與 <code>monitor.ps1</code>、<code>Modules\BurntToast\</code> 同一層），覆蓋既有的那份<br>
+        2. 若使用自訂音效，把音效檔放到上面填寫的路徑<br>
+        3. 以<b>系統管理員身分</b>執行 <code>run.bat</code><br>
+        4. 或手動執行：開啟系統管理員 PowerShell，<code>cd</code> 到該資料夾後執行 <code>.\monitor.ps1</code>；若被執行原則擋下，先跑一次 <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code>
     </div>
 </div>
 
@@ -213,132 +247,67 @@ function showStatus(msg, ok) {
     el.className = 'status show ' + (ok ? 'ok' : 'err');
 }
 
-function generateScript() {
-    const computerLabel = document.getElementById('computerLabel').value.trim();
+function onSoundChange() {
+    const isCustom = document.getElementById('alarmSound').value === '__custom__';
+    document.getElementById('customSoundBlock').style.display = isCustom ? 'block' : 'none';
+}
+
+function generateConfig() {
+    const soundSel = document.getElementById('alarmSound').value;
+    let sound = soundSel;
+    let loopSeconds = 0;
+
+    if (soundSel === '__custom__') {
+        sound = document.getElementById('customSoundPath').value.trim();
+        if (!sound) {
+            showStatus('請填寫自訂音效檔的路徑，或改選內建音效。', false);
+            return;
+        }
+        loopSeconds = parseInt(document.getElementById('loopSeconds').value, 10) || 0;
+    }
+
+    const pollRaw = parseInt(document.getElementById('pollInterval').value.trim(), 10);
+    const pollSeconds = (pollRaw > 0) ? pollRaw : 3;
+
     const apiUrlInput = document.getElementById('apiUrl').value.trim();
     const apiKeyInput = document.getElementById('apiKey').value.trim();
-    const apiUrl = apiUrlInput || DEFAULT_API_URL;
-    const apiKey = apiKeyInput || DEFAULT_API_KEY;
     const usedDefaults = (!apiUrlInput || !apiKeyInput);
-    const alarmSound = document.getElementById('alarmSound').value;
-    const pollInterval = document.getElementById('pollInterval').value.trim() || '3';
 
-    // 通知固定用 Toast，音效依使用者選擇帶入
-    const soundParam = alarmSound === 'Silent' ? '-Silent' : `-Sound ${alarmSound}`;
-    const alarmBlock = `
-        $modulePath = Join-Path $PSScriptRoot "Modules\\BurntToast\\BurntToast.psd1"
-        if (Test-Path $modulePath) {
-            Import-Module $modulePath -Force -ErrorAction SilentlyContinue
-        }
-        if (Get-Command New-BurntToastNotification -ErrorAction SilentlyContinue) {
-            New-BurntToastNotification -Text "USB Device Removed", "$($disk.FriendlyName) (Serial: $($disk.SerialNumber))" ${soundParam}
-        } else {
-            Write-Host "[Warning] BurntToast module not found, skipping toast notification."
-        }`;
+    // 一行一個序號；空陣列代表監控所有 USB 磁碟
+    const watchSerials = document.getElementById('watchSerials').value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
-    const computerLine = computerLabel
-        ? `$computerId = "${computerLabel.replace(/"/g, '')}"`
-        : `$computerId = $env:COMPUTERNAME`;
+    // 純資料輸出，JSON.stringify 會處理所有跳脫；
+    // 使用者的輸入不會被當成 PowerShell 程式碼求值。
+    const config = {
+        serverUrl:            apiUrlInput || DEFAULT_API_URL,
+        apiKey:               apiKeyInput || DEFAULT_API_KEY,
+        computerName:         document.getElementById('computerLabel').value.trim(),
+        pollSeconds:          pollSeconds,
+        sound:                sound,
+        soundLoopSeconds:     loopSeconds,
+        urgent:               document.getElementById('urgent').checked,
+        skipCertificateCheck: document.getElementById('skipCert').checked,
+        watchSerials:         watchSerials
+    };
 
-    const scriptContent = `# monitor.ps1
-# Auto-generated by USB Monitor Config Generator
-# Generated at: ${new Date().toISOString()}
-
-$serverUrl = "${apiUrl.replace(/"/g, '')}"
-$apiKey = "${apiKey.replace(/"/g, '')}"
-${computerLine}
-$pollSeconds = ${parseInt(pollInterval) || 3}
-
-# Auto-unblock files in this folder (in case downloaded from browser / copied from network share)
-Get-ChildItem $PSScriptRoot -Recurse -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue
-
-[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-
-function Get-USBDisks {
-    Get-Disk | Where-Object { $_.BusType -eq "USB" } | Select-Object Number, FriendlyName, SerialNumber
-}
-
-$previousDisks = Get-USBDisks
-Write-Host "USB monitoring started for [$computerId]. Detected $($previousDisks.Count) USB device(s):"
-$previousDisks | ForEach-Object { Write-Host "  - $($_.FriendlyName) ($($_.SerialNumber))" }
-
-while ($true) {
-    Start-Sleep -Seconds $pollSeconds
-    $currentDisks = Get-USBDisks
-
-    $removed = $previousDisks | Where-Object {
-        $sn = $_.SerialNumber
-        -not ($currentDisks | Where-Object { $_.SerialNumber -eq $sn })
-    }
-
-    $added = $currentDisks | Where-Object {
-        $sn = $_.SerialNumber
-        -not ($previousDisks | Where-Object { $_.SerialNumber -eq $sn })
-    }
-
-    foreach ($disk in $added) {
-        Write-Host "Device connected: $($disk.FriendlyName) - $($disk.SerialNumber)"
-        $payload = @{
-            computer  = $computerId
-            model     = $disk.FriendlyName
-            serial    = $disk.SerialNumber
-            timestamp = (Get-Date).ToString("o")
-            event     = "connected"
-        } | ConvertTo-Json
-
-        try {
-            Invoke-RestMethod -Uri $serverUrl \`
-                -Method Post -Body $payload -ContentType "application/json" \`
-                -Headers @{ "Authorization" = "Bearer $apiKey" } -TimeoutSec 5
-
-            Write-Host "Reported: $($disk.FriendlyName) - $($disk.SerialNumber)"
-        } catch {
-            Write-Host "Report failed: $_"
-            $payload | Out-File -Append (Join-Path $PSScriptRoot "failed-events.log")
-        }
-    }
-
-    foreach ($disk in $removed) {
-${alarmBlock}
-
-        $payload = @{
-            computer  = $computerId
-            model     = $disk.FriendlyName
-            serial    = $disk.SerialNumber
-            timestamp = (Get-Date).ToString("o")
-            event     = "removed"
-        } | ConvertTo-Json
-
-        try {
-            Invoke-RestMethod -Uri $serverUrl \`
-                -Method Post -Body $payload -ContentType "application/json" \`
-                -Headers @{ "Authorization" = "Bearer $apiKey" } -TimeoutSec 5
-
-            Write-Host "Reported: $($disk.FriendlyName) - $($disk.SerialNumber)"
-        } catch {
-            Write-Host "Report failed: $_"
-            $payload | Out-File -Append (Join-Path $PSScriptRoot "failed-events.log")
-        }
-    }
-
-    $previousDisks = $currentDisks
-}
-`;
-
-    const blob = new Blob([scriptContent], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([JSON.stringify(config, null, 2) + '\n'],
+                          { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'monitor.ps1';
+    a.download = 'config.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
     if (usedDefaults) {
-        showStatus('已產生 monitor.ps1（部分欄位使用了預設值），請依照下方步驟執行。', true);
+        showStatus('已產生 config.json（部分欄位使用了預設值），請依照下方步驟放置檔案。', true);
     } else {
-        showStatus('已產生 monitor.ps1，請依照下方步驟執行。', true);
+        showStatus('已產生 config.json，請依照下方步驟放置檔案。', true);
     }
 }
 </script>
