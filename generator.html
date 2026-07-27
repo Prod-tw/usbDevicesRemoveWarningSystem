@@ -164,9 +164,9 @@
     <span class="toggle-pw" onclick="togglePw()">顯示 / 隱藏</span>
     <div class="hint">留空將自動帶入預設金鑰</div>
 
-    <label for="watchSerials">監控範圍：指定裝置序號（選填，一行一個）</label>
-    <textarea id="watchSerials" rows="3" placeholder="留空 = 監控所有 USB 磁碟"></textarea>
-    <div class="hint">留空則監控全部 USB 磁碟。要查序號，先執行一次 <code>run.bat</code>，視窗會列出目前接上的所有 USB 磁碟與序號，複製過來即可。序號大小寫不拘。</div>
+    <label for="watchIds">監控範圍：指定裝置識別碼（選填，一行一個）</label>
+    <textarea id="watchIds" rows="3" placeholder="留空 = 監控所有 USB 磁碟"></textarea>
+    <div class="hint">留空則監控全部 USB 磁碟。要查識別碼，先執行一次 <code>run.bat</code>，視窗會列出目前接上的所有 USB 磁碟與各自的 <code>diskId</code>，複製過來即可。填 diskId 或 USB 序號都可以，大小寫不拘。</div>
 
     <div class="row">
         <div>
@@ -273,10 +273,11 @@ function generateConfig() {
     const apiKeyInput = document.getElementById('apiKey').value.trim();
     const usedDefaults = (!apiUrlInput || !apiKeyInput);
 
-    // 一行一個序號；空陣列代表監控所有 USB 磁碟
-    const watchSerials = document.getElementById('watchSerials').value
+    // 一行一個識別碼（diskId 或 USB 序號）；空陣列代表監控所有 USB 磁碟。
+    // 大括號在此去除，monitor.ps1 那端也會再去一次。
+    const watchIds = document.getElementById('watchIds').value
         .split('\n')
-        .map(s => s.trim())
+        .map(s => s.trim().replace(/^\{|\}$/g, ''))
         .filter(s => s.length > 0);
 
     // 純資料輸出，JSON.stringify 會處理所有跳脫；
@@ -290,7 +291,8 @@ function generateConfig() {
         soundLoopSeconds:     loopSeconds,
         urgent:               document.getElementById('urgent').checked,
         skipCertificateCheck: document.getElementById('skipCert').checked,
-        watchSerials:         watchSerials
+        identifyBy:           'auto',
+        watchIds:             watchIds
     };
 
     const blob = new Blob([JSON.stringify(config, null, 2) + '\n'],

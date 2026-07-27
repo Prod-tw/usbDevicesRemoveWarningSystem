@@ -117,6 +117,24 @@ if ($soundSetting -eq 'Silent') {
 $script:WavPlayer   = $null
 $script:ComPlayer   = $null
 $script:SoundStopAt = $null
+$script:WavStream   = $null
+
+# Read the .wav into memory now rather than at alarm time. If the script is run
+# from the drive it is watching, the file vanishes at the exact moment the alarm
+# is needed - and even on a local disk this avoids disk I/O in that path.
+if ($soundMode -eq 'Custom' -and [System.IO.Path]::GetExtension($customSoundPath).ToLower() -eq '.wav') {
+    try {
+        $bytes = [System.IO.File]::ReadAllBytes($customSoundPath)
+        $script:WavStream = New-Object System.IO.MemoryStream (, $bytes)
+        $probe = New-Object System.Media.SoundPlayer $script:WavStream
+        $probe.Load()
+        $probe.Dispose()
+    } catch {
+        Write-Host "[Warning] Could not preload '$customSoundPath': $_" -ForegroundColor Yellow
+        Write-Host "          Falling back to reading it when the alarm fires." -ForegroundColor Yellow
+        $script:WavStream = $null
+    }
+}
 
 function Stop-AlarmSound {
     if ($script:WavPlayer) {
@@ -138,7 +156,12 @@ function Start-AlarmSound {
 
     try {
         if ([System.IO.Path]::GetExtension($customSoundPath).ToLower() -eq '.wav') {
-            $script:WavPlayer = New-Object System.Media.SoundPlayer $customSoundPath
+            if ($script:WavStream) {
+                $script:WavStream.Position = 0
+                $script:WavPlayer = New-Object System.Media.SoundPlayer $script:WavStream
+            } else {
+                $script:WavPlayer = New-Object System.Media.SoundPlayer $customSoundPath
+            }
             if ($loop) { $script:WavPlayer.PlayLooping() } else { $script:WavPlayer.Play() }
         } else {
             # .mp3 / .wma / etc. via the Windows Media Player COM object
@@ -197,7 +220,7 @@ function Show-RemovalToast {
     if (-not $toastLoaded) { return }
 
     $params = @{
-        Text        = @('USB Device Removed', "$($Disk.FriendlyName) (Serial: $($Disk.SerialNumber))")
+        Text        = @('USB Device Removed', "$($Disk.FriendlyName) (ID: $(Get-DiskKey $Disk))")
         ErrorAction = 'SilentlyContinue'
     }
 
@@ -218,10 +241,14 @@ function Show-RemovalToast {
 function Send-Event {
     param($Disk, [string] $EventName)
 
+    # diskId is included because serial is unreliable - cheap enclosures report
+    # one shared placeholder for a whole batch, which would make every site's
+    # events look identical on the server.
     $payload = @{
         computer  = $computerId
         model     = $Disk.FriendlyName
-        serial    = $Disk.SerialNumber
+        diskId    = Get-DiskId $Disk
+        serial    = "$($Disk.SerialNumber)".Trim()
         timestamp = (Get-Date).ToString('o')
         event     = $EventName
     } | ConvertTo-Json -Compress
@@ -231,7 +258,7 @@ function Send-Event {
             -ContentType 'application/json; charset=utf-8' `
             -Headers @{ 'Authorization' = "Bearer $apiKey" } -TimeoutSec 5 | Out-Null
 
-        Write-Host "  Reported [$EventName]: $($Disk.FriendlyName) - $($Disk.SerialNumber)"
+        Write-Host "  Reported [$EventName]: $($Disk.FriendlyName) - $(Get-DiskKey $Disk)"
     } catch {
         Write-Host "  Report failed: $_" -ForegroundColor Yellow
         $payload | Out-File -Append -Encoding UTF8 (Join-Path $PSScriptRoot 'failed-events.log')
@@ -341,7 +368,7 @@ $soundLabel = switch ($soundMode) {
     default  { "built-in '$soundName'" }
 }
 
-$scopeLabel = if ($watchAll) { 'every USB disk' } else { "$($watchSet.Count) listed serial(s)" }
+$scopeLabel = if ($watchAll) { 'every USB disk' } else { "$($watchSet.Count) listed identifier(s)" }
 
 Write-Host "============================================"
 Write-Host " USB monitoring started for [$computerId]"
@@ -385,8 +412,8 @@ if (-not $watchAll) {
     $missing = @($watchSet.Keys | Where-Object { -not $present.ContainsKey($_) })
 
     if ($missing.Count -eq $watchSet.Count -and $allDisks.Count -gt 0) {
-        Write-Host "[Warning] None of the serials in watchSerials are attached right now." -ForegroundColor Yellow
-        Write-Host "          Check for typos - serials are listed above." -ForegroundColor Yellow
+        Write-Host "[Warning] None of the identifiers in watchIds are attached right now." -ForegroundColor Yellow
+        Write-Host "          Check for typos - the attached disks are listed above." -ForegroundColor Yellow
     } elseif ($missing.Count -gt 0) {
         Write-Host "[Note] Not attached yet: $($missing -join ', ')"
     }
@@ -415,12 +442,12 @@ while ($true) {
     $removed = @(Get-DiskDelta -From $prevMap -To $currMap)
 
     foreach ($disk in $added) {
-        Write-Host "Device connected: $($disk.FriendlyName) - $($disk.SerialNumber)"
+        Write-Host "Device connected: $($disk.FriendlyName) - $(Get-DiskKey $disk)"
         Send-Event -Disk $disk -EventName 'connected'
     }
 
     foreach ($disk in $removed) {
-        Write-Host "Device REMOVED: $($disk.FriendlyName) - $($disk.SerialNumber)" -ForegroundColor Red
+        Write-Host "Device REMOVED: $($disk.FriendlyName) - $(Get-DiskKey $disk)" -ForegroundColor Red
         Show-RemovalToast -Disk $disk
         Start-AlarmSound
         Send-Event -Disk $disk -EventName 'removed'

@@ -4,10 +4,13 @@
 #   .\deploy.ps1 -Table ..\sites.csv          use a CSV table instead
 #   .\deploy.ps1 -ConfigOnly                  emit config.json only, no file copies
 #
-# The table has three required columns:
-#   deployAt  site name  -> becomes the folder name and computerName
-#   ssdName   model name -> documentation only, ends up in the manifest
-#   serials   serial(s)  -> becomes watchSerials
+# Table columns:
+#   deployAt  site name   -> becomes the folder name and computerName  (required)
+#   diskIds   disk ID(s)  -> becomes watchIds                          (preferred)
+#   serials   USB serial(s) -> also becomes watchIds; use either or both
+#   ssdName   model name  -> documentation only, ends up in the manifest
+#
+# At least one of diskIds / serials must be present on every row.
 #
 # Any additional column that matches a key in the base config.json overrides
 # that key for the site (e.g. a serverUrl column to split sites across servers).
@@ -120,10 +123,14 @@ foreach ($row in $rows) {
     $deployAt = "$(Get-Field $row 'deployAt')".Trim()
     $ssdName  = "$(Get-Field $row 'ssdName')".Trim()
 
-    # diskIds and serials both end up in watchIds; monitor.ps1 matches either.
-    $ids = @()
-    $ids += ConvertTo-SerialList (Get-Field $row 'diskIds')
-    $ids += ConvertTo-SerialList (Get-Field $row 'serials')
+    $diskIds   = @(ConvertTo-SerialList (Get-Field $row 'diskIds'))
+    $serialIds = @(ConvertTo-SerialList (Get-Field $row 'serials'))
+
+    # A diskId identifies one physical drive; a serial often does not, because
+    # cheap enclosures hand out one placeholder for a whole batch. monitor.ps1
+    # matches on either, so keeping a shared serial alongside a good diskId
+    # would let the wrong drive satisfy the whitelist. Prefer the diskId alone.
+    $ids = if ($diskIds.Count -gt 0) { $diskIds } else { $serialIds }
     $serials = @($ids | ForEach-Object { $_.Trim('{', '}') } | Where-Object { $_ -ne '' })
 
     if ($deployAt -eq '') { Write-Err "row $rowNumber has no deployAt, skipped."; continue }
